@@ -11,10 +11,13 @@ class VTKConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     exports = ["LICENSE.md", "CMakeLists.txt", "FindVTK.cmake"]
     source_subfolder = "source_subfolder"
-    options = {"shared": [True, False], "qt": [True, False], "mpi": [True, False],
-               "fPIC": [True, False]}
-    default_options = ("shared=False", "qt=False", "mpi=False", "fPIC=False",
-                       "Qt:xmlpatterns=True")
+    options = {"shared": [True, False],
+                "qt": [True, False],
+                "mpi": [True, False],
+                "fPIC": [True, False],
+                "scenegraph": [True, False]}
+    default_options = ("shared=True", "qt=True", "mpi=False", "fPIC=False",
+                       "Qt:xmlpatterns=True", "scenegraph=True")
 
     short_paths = True
 
@@ -25,11 +28,12 @@ class VTKConan(ConanFile):
         tools.get("http://www.vtk.org/files/release/{0}/{1}-{2}.tar.gz"
           .format(self.short_version, self.name, self.version))
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self.source_subfolder)
+        #os.rename(extracted_dir, self.source_subfolder)
 
     def requirements(self):
-        if self.options.qt == True:
-            self.requires("Qt/5.9.2@osechet/stable")
+        pass
+        #if self.options.qt == True:
+        #    self.requires("Qt/5.9.2@osechet/stable")
 
     def system_requirements(self):
         pack_names = None
@@ -64,10 +68,15 @@ class VTKConan(ConanFile):
             cmake.definitions["VTK_Group_Qt"] = "ON"
             cmake.definitions["VTK_QT_VERSION"] = "5"
             cmake.definitions["VTK_BUILD_QT_DESIGNER_PLUGIN"] = "OFF"
-        cmake.definitions["VTK_Group_MPI"] = self.options.mpi
+            cmake.definitions["Module_vtkGUISupportQtOpenGL"] = "ON"
+            cmake.definitions["Module_vtkRenderingExternal"] = "ON"
 
-        if self.settings.build_type == "Debug" and self.settings.compiler == "Visual Studio":
-            cmake.definitions["CMAKE_DEBUG_POSTFIX"] = "_d"
+        #cmake.definitions[""]
+        cmake.definitions["Module_vtkRenderingSceneGraph"] = "ON"
+        cmake.definitions["Module_vtkDICOM"] = "OFF"
+        cmake.definitions["VTK_Group_MPI"] = self.options.mpi
+        #if self.settings.build_type == "Debug" and self.settings.compiler == "Visual Studio":
+        #    cmake.definitions["CMAKE_DEBUG_POSTFIX"] = "_d"
 
         if self.settings.os != "Windows":
             cmake.definitions['CMAKE_POSITION_INDEPENDENT_CODE'] = self.options.fPIC
@@ -75,6 +84,10 @@ class VTKConan(ConanFile):
         cmake.configure()
         cmake.build()
         cmake.install()
+
+    def package(self):
+        self.copy("FindVTK.cmake", ".", ".")
+        self.copy("*", dst=".", src=self.build_folder + "/package")
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)

@@ -1,7 +1,6 @@
 project(cmake_wrapper)
 
-include(conanbuildinfo.cmake)
-conan_basic_setup()
+set(CMAKE_PREFIX_PATH "C:/Develop/toolchains/Qt/Qt5.10.1/5.10.1/msvc2017_64")
 
 if(MSVC)
     # Remove pdb-related flags
@@ -11,4 +10,4 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE} /Z7")
 endif()
 
-add_subdirectory(source_subfolder)
+add_subdirectory(VTK-8.1.0)
