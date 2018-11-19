@@ -1,0 +1,13 @@
+
+[requires]
+VTK/8.1.0@ipa/testing
+
+
+[generators]
+cmake
+
+[options]
+
+[imports]
+## VTK
+bin, *.dll -> ./bin @ root_package=VTK
